@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Fancy — Single Page Demo</title>
+  <meta name="description" content="A single-file fancy HTML demo with glassmorphism, animations and small JS interactions." />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg-1: #0f172a; /* deep */
+      --glass: rgba(255,255,255,0.06);
+      --accent-1: #7c3aed;
+      --accent-2: #06b6d4;
+      --muted: rgba(255,255,255,0.65);
+      --glass-border: rgba(255,255,255,0.08);
+      --card-shadow: 0 8px 30px rgba(2,6,23,0.6);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;}
+    body{
+      margin:0; font-family:'Inter',system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      color: #e6eef8; background: radial-gradient(circle at 10% 10%, rgba(124,58,237,0.12), transparent 10%),
+                 radial-gradient(circle at 90% 90%, rgba(6,182,212,0.08), transparent 12%),
+                 linear-gradient(180deg,var(--bg-1), #071020 80%);
+      -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+      padding:40px;
+    }
+
+    /* Floating gradient orbs */
+    .orb{position:fixed;pointer-events:none;filter:blur(60px);opacity:0.65}
+    .orb.one{width:420px;height:420px;background:linear-gradient(135deg,var(--accent-1),transparent);left:-120px;top:-80px}
+    .orb.two{width:360px;height:360px;background:linear-gradient(45deg,var(--accent-2),transparent);right:-80px;bottom:-140px}
+
+    .container{max-width:1100px;margin:0 auto;position:relative}
+    header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:28px}
+    .brand{display:flex;gap:14px;align-items:center}
+    .logo{width:52px;height:52px;border-radius:12px;background:linear-gradient(135deg,var(--accent-1),var(--accent-2));display:grid;place-items:center;box-shadow:0 6px 18px rgba(8,7,20,0.6);font-weight:800}
+    .brand h1{margin:0;font-size:18px;letter-spacing:-0.2px}
+    .brand p{margin:0;font-size:12px;color:var(--muted)}
+
+    nav{display:flex;gap:12px}
+    button.cta{background:linear-gradient(90deg,var(--accent-1),var(--accent-2));border:0;padding:10px 14px;border-radius:12px;color:white;font-weight:600;cursor:pointer;box-shadow:var(--card-shadow)}
+    button.ghost{background:transparent;border:1px solid var(--glass-border);color:var(--muted);padding:8px 12px;border-radius:10px;cursor:pointer}
+
+    main{display:grid;grid-template-columns:1.1fr 0.9fr;gap:20px;margin-top:16px}
+
+    /* hero */
+    .hero{background:linear-gradient(180deg, rgba(255,255,255,0.03), transparent);padding:28px;border-radius:18px;border:1px solid var(--glass-border);box-shadow:var(--card-shadow)}
+    .hero h2{margin:0 0 12px;font-size:28px}
+    .hero p{margin:0 0 18px;color:var(--muted)}
+    .features{display:flex;gap:10px;flex-wrap:wrap}
+    .pill{background:rgba(255,255,255,0.03);padding:8px 12px;border-radius:999px;font-size:13px;border:1px solid rgba(255,255,255,0.02)}
+
+    /* right column */
+    .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);padding:18px;border-radius:14px;border:1px solid var(--glass-border)}
+    .grid-cards{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+    .mini{padding:12px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);border:1px solid rgba(255,255,255,0.03)}
+
+    /* fancy list */
+    ul.checklist{list-style:none;padding:0;margin:12px 0 0}
+    ul.checklist li{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px dashed rgba(255,255,255,0.03)}
+    .dot{width:36px;height:36px;border-radius:10px;background:linear-gradient(90deg,var(--accent-1),var(--accent-2));display:grid;place-items:center;font-weight:700;color:white}
+
+    footer{margin-top:22px;color:var(--muted);font-size:13px;display:flex;justify-content:space-between;align-items:center}
+
+    /* responsive */
+    @media (max-width:900px){main{grid-template-columns:1fr}header{flex-direction:column;align-items:flex-start}footer{flex-direction:column;gap:8px}}
+
+    /* small interactions */
+    .tilt{transform-origin:center;transition:transform .35s cubic-bezier(.2,.9,.3,1)}
+    .tilt:hover{transform:translateY(-8px) rotateX(4deg) rotateZ(-1deg)}
+
+    /* subtle animated underline */
+    .magic{display:inline-block;position:relative}
+    .magic:after{content:'';position:absolute;left:0;bottom:-4px;height:3px;width:100%;background:linear-gradient(90deg,var(--accent-1),var(--accent-2));transform:scaleX(0);transform-origin:left;transition:transform .36s ease}
+    .magic:hover:after{transform:scaleX(1)}
+
+    /* modal */
+    .modal{position:fixed;inset:0;display:grid;place-items:center;background:rgba(3,6,12,0.6);visibility:hidden;opacity:0;transition:opacity .18s,visibility .18s}
+    .modal.open{visibility:visible;opacity:1}
+    .modal .panel{width:min(720px,94%);background:linear-gradient(180deg,#071029, #09121a);padding:22px;border-radius:14px;border:1px solid rgba(255,255,255,0.06)}
+  </style>
+</head>
+<body>
+  <div class="orb one" aria-hidden></div>
+  <div class="orb two" aria-hidden></div>
+
+  <div class="container">
+    <header>
+      <div class="brand">
+        <div class="logo">F</div>
+        <div>
+          <h1>Fancy</h1>
+          <p>single-file demo • glassmorphism • interactive</p>
+        </div>
+      </div>
+
+      <nav>
+        <button class="ghost" onclick="openModal()">Preview</button>
+        <button class="cta" id="downloadBtn">Download HTML</button>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero tilt" aria-labelledby="hero-title">
+        <h2 id="hero-title">A small, fancy single-page template</h2>
+        <p>Beautiful gradients, glass cards and subtle interactions — drop this single file into any project or open it locally to preview.
+        </p>
+
+        <div class="features" role="list">
+          <span class="pill">Responsive</span>
+          <span class="pill">No external JS</span>
+          <span class="pill">Accessible-ish</span>
+          <span class="pill">Easy to customize</span>
+        </div>
+
+        <div style="display:flex;gap:10px;margin-top:18px">
+          <button class="cta" onclick="celebrate()">Make it dance</button>
+          <button class="ghost" onclick="copyHTML()">Copy HTML</button>
+        </div>
+
+        <div style="margin-top:18px">
+          <ul class="checklist">
+            <li><div class="dot">01</div><div><strong>Handy sections</strong><div style="color:var(--muted);font-size:13px">Hero, cards, modal, download and small JS utilities</div></div></li>
+            <li><div class="dot">02</div><div><strong>Lightweight</strong><div style="color:var(--muted);font-size:13px">Single file, no frameworks needed</div></div></li>
+            <li><div class="dot">03</div><div><strong>Easy theming</strong><div style="color:var(--muted);font-size:13px">Change CSS variables at the top</div></div></li>
+          </ul>
+        </div>
+      </section>
+
+      <aside class="card">
+        <h3 class="magic">Quick controls</h3>
+        <p style="color:var(--muted);margin-top:6px">Small utilities you can test right away.</p>
+
+        <div style="margin-top:14px" class="grid-cards">
+          <div class="mini tilt">
+            <strong>Theme</strong>
+            <p style="color:var(--muted);font-size:13px">Toggle to a lighter accent combination.</p>
+            <div style="margin-top:8px"><button class="ghost" onclick="toggleAccent()">Toggle Accent</button></div>
+          </div>
+
+          <div class="mini tilt">
+            <strong>Modal</strong>
+            <p style="color:var(--muted);font-size:13px">Open a preview modal built into this page.</p>
+            <div style="margin-top:8px"><button class="cta" onclick="openModal()">Open</button></div>
+          </div>
+
+          <div class="mini tilt">
+            <strong>Cards</strong>
+            <p style="color:var(--muted);font-size:13px">Hover any card to see a tilt effect.</p>
+          </div>
+
+          <div class="mini tilt">
+            <strong>Download</strong>
+            <p style="color:var(--muted);font-size:13px">Download the HTML source to reuse.</p>
+            <div style="margin-top:8px"><button class="ghost" id="dl2">Download</button></div>
+          </div>
+        </div>
+
+        <footer>
+          <div>Made with ♥</div>
+          <div>v1 • single-file</div>
+        </footer>
+      </aside>
+    </main>
+  </div>
+
+  <div class="modal" id="modal">
+    <div class="panel">
+      <h3>Quick preview</h3>
+      <p style="color:var(--muted)">This modal is part of the page — useful for a library preview or small demo.</p>
+      <div style="margin-top:14px;display:flex;gap:10px;justify-content:flex-end">
+        <button class="ghost" onclick="closeModal()">Close</button>
+        <button class="cta" onclick="closeModal()">Nice</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Simple interactions
+    const modal = document.getElementById('modal');
+    function openModal(){ modal.classList.add('open') }
+    function closeModal(){ modal.classList.remove('open') }
+
+    function celebrate(){
+      const root = document.documentElement;
+      root.animate([
+        {filter:'hue-rotate(0deg)'},
+        {filter:'hue-rotate(360deg)'}
+      ],{duration:1000,iterations:1});
+      // tiny confetti effect using CSS
+      const d = document.createElement('div');
+      d.style.position='fixed'; d.style.inset='0'; d.style.pointerEvents='none';
+      d.style.background='radial-gradient(circle at 20% 20%, rgba(255,255,255,0.03), transparent)';
+      document.body.appendChild(d);
+      setTimeout(()=>d.remove(),900);
+    }
+
+    // Copy the entire page HTML to clipboard
+    async function copyHTML(){
+      try{
+        await navigator.clipboard.writeText(document.documentElement.outerHTML);
+        alert('HTML copied to clipboard — paste into a file and save as .html');
+      }catch(e){
+        alert('Copy failed. You can save the file manually by selecting page source.');
+      }
+    }
+
+    // Download the HTML
+    function downloadFile(filename, content){
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([content],{type:'text/html'}));
+      a.download = filename; document.body.appendChild(a); a.click(); a.remove();
+    }
+
+    document.getElementById('downloadBtn').addEventListener('click', ()=>{
+      downloadFile('fancy-single-page.html', document.documentElement.outerHTML);
+    });
+    document.getElementById('dl2').addEventListener('click', ()=>{
+      downloadFile('fancy-single-page.html', document.documentElement.outerHTML);
+    });
+
+    // small theme toggle: swap accent vars
+    let alt=false;
+    function toggleAccent(){
+      alt = !alt;
+      document.documentElement.style.setProperty('--accent-1', alt? '#ef4444':'#7c3aed');
+      document.documentElement.style.setProperty('--accent-2', alt? '#f59e0b':'#06b6d4');
+    }
+  </script>
+</body>
+</html>
+
